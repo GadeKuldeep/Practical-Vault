@@ -11,31 +11,50 @@ const devRoutes = require('./routes/devRoutes');
 const path = require('path');
 
 const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/practicalvault';
+const MONGO_URI =
+  process.env.MONGO_URI ||
+  'mongodb+srv://gadekuldeep25_db_user:12345@practicals.ecjqqez.mongodb.net/practicalvault';
 
+// connect to MongoDB
 connectDB(MONGO_URI);
 
 const app = express();
 app.use(morgan('dev'));
 app.use(express.json());
-app.use(cors({ origin: true, credentials: true }));
 
-app.get('/', (req, res) => res.send('PracticalVault Backend'));
+// ✅ Strict CORS setup for your Netlify site
+app.use(
+  cors({
+    origin: [
+      'https://practical-vault.netlify.app', // your Netlify frontend
+      'http://localhost:5173', // allow local dev testing
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+  })
+);
 
+// root route
+app.get('/', (req, res) => res.send('✅ PracticalVault Backend is running'));
+
+// API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/subjects', subjectRoutes);
 app.use('/api/practicals', practicalRoutes);
 
-// dev-only helpers
+// Dev-only helper routes
 if (process.env.NODE_ENV !== 'production') {
   app.use('/api/dev', devRoutes);
 }
 
-// basic error handlers
-app.use((req, res, next) => res.status(404).json({ message: 'Not Found' }));
+// 404 handler
+app.use((req, res) => res.status(404).json({ message: 'Not Found' }));
+
+// General error handler
 app.use((err, req, res, next) => {
-  console.error(err.stack || err);
+  console.error('❌ Server Error:', err.stack || err);
   res.status(err.status || 500).json({ message: err.message || 'Server Error' });
 });
 
-app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
