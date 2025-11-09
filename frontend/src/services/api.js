@@ -1,8 +1,8 @@
+
 import axios from 'axios'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
-
-const api = axios.create({ baseURL: API_URL, headers: { 'Content-Type': 'application/json' } })
+// Use the deployed backend URL directly (no .env)
+const api = axios.create({ baseURL: 'https://practical-vault.onrender.com', headers: { 'Content-Type': 'application/json' } })
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token')
